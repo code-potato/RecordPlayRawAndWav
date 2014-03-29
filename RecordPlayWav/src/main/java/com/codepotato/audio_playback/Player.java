@@ -11,7 +11,7 @@ import java.io.*;
 
 public class Player implements Runnable{
     private boolean isPlaying;
-    private int buff_size; //determined at runtime based on hardware, sample rate, channelConfig, audioFormat
+    private int buff_size=8000; //determined at runtime based on hardware, sample rate, channelConfig, audioFormat
     //Activity activity;
 
     private InputStream is;
@@ -32,8 +32,8 @@ public class Player implements Runnable{
     public Player(AssetFileDescriptor descriptor) throws IOException {
         // setup input stream from given file
         is = new FileInputStream(descriptor.getFileDescriptor());
-        isStereo= true;
-        buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        //isStereo= true;
+        //buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
         //Log.d(LOG_TAG, "Mikes buff_size: " + Integer.toString(buff_size));
         //Log.d(LOG_TAG, descriptor.toString());
@@ -47,9 +47,9 @@ public class Player implements Runnable{
         // setup input stream from given file
         is = new FileInputStream(audioFile);
         //audio_format= AudioFormat.CHANNEL_IN_MONO;
-        isStereo= false;
-        buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        Log.d(LOG_TAG, "Recorded Audio buff_size: " + Integer.toString(buff_size));
+        //isStereo= false;
+        //buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        //Log.d(LOG_TAG, "Recorded Audio buff_size: " + Integer.toString(buff_size));
 
 
         prepare();
@@ -67,8 +67,8 @@ public class Player implements Runnable{
 
         //setup audio track
         track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
-                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
-                buff_size, AudioTrack.MODE_STREAM);
+                AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+                8000, AudioTrack.MODE_STREAM);
 
         audioThread= new Thread(this, "Player: Audio Playback Thread");
     }
