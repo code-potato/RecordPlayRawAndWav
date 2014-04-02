@@ -6,7 +6,11 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.provider.MediaStore;
 import android.util.Log;
+import com.codepotato.AudioEffects.DelayEffect;
+import com.codepotato.AudioEffects.DelayLine;
+
 import java.io.*;
+import java.nio.ByteBuffer;
 
 
 public class Player implements Runnable{
@@ -24,6 +28,10 @@ public class Player implements Runnable{
     private boolean isStereo; //stereo or mono
     private static final String LOG_TAG= "XPlayer";
 
+    //delay effect
+    private DelayEffect delay;
+    private DelayLine delayl;
+
     /**for the song file that michael has been using, which I assume is stereo
      *
      * @param descriptor
@@ -34,6 +42,9 @@ public class Player implements Runnable{
         is = new FileInputStream(descriptor.getFileDescriptor());
         //isStereo= true;
         buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+
+        //make buff_size divisible by 8
+        buff_size += 8 - buff_size%8;
 
         //Log.d(LOG_TAG, "Mikes buff_size: " + Integer.toString(buff_size));
         //Log.d(LOG_TAG, descriptor.toString());
@@ -50,6 +61,9 @@ public class Player implements Runnable{
         //isStereo= false;
         buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
         //Log.d(LOG_TAG, "Recorded Audio buff_size: " + Integer.toString(buff_size));
+
+        //make buff_size divisible by 8
+        buff_size += 8 - buff_size%8;
 
 
         prepare();
@@ -68,9 +82,22 @@ public class Player implements Runnable{
         //setup audio track
         track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
-                buff_size, AudioTrack.MODE_STREAM);
+                32000, AudioTrack.MODE_STREAM);
 
         audioThread= new Thread(this, "Player: Audio Playback Thread");
+
+        //delay line testing
+        delayl = new DelayLine(88200);
+        delayl.setDelayLineDelay(44100);
+
+        // set delay to 100ms
+        delay = new DelayEffect(8820);
+        delay.setDelayTime(4410);
+
+        // set delay parameters
+        delay.setWetGain(1);
+        delay.setDryGain(1);
+        delay.setFeedbackGain(0);
     }
 
 
@@ -103,13 +130,22 @@ public class Player implements Runnable{
             e.printStackTrace();
         }*/
 
+        ByteBuffer bb = ByteBuffer.allocate(8);
         while(isPlaying){
             try {
                 //fill buffer with bytes from file reader
-                for(int i=0; i < buff_size; i++)
-                    buff[i] = dis.readByte();
+                for(int i=0; i < buff_size/8; i++)
+                {
+                    //buff[i] = dis.readByte();
 
-                // future effect chain goes here
+                    /*
+                    Read double from input, tick() the effects,
+                    then save to bytebuffer.
+                     */
+                    bb.putDouble(0, delayl.tick(dis.readDouble()));
+                    bb.rewind();
+                    bb.get(buff,i*8,8);
+                }
 
                 //write buffer to track to play
                 track.write(buff, 0, buff_size);
@@ -126,6 +162,5 @@ public class Player implements Runnable{
         Log.d("player", "pause");
         isPlaying = false;
     }
-
 
 }
