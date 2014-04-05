@@ -43,9 +43,6 @@ public class Player implements Runnable{
         //isStereo= true;
         buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-        //make buff_size divisible by 8
-        buff_size += 8 - buff_size%8;
-
         //Log.d(LOG_TAG, "Mikes buff_size: " + Integer.toString(buff_size));
         //Log.d(LOG_TAG, descriptor.toString());
         prepare();
@@ -61,10 +58,6 @@ public class Player implements Runnable{
         //isStereo= false;
         buff_size= AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
         //Log.d(LOG_TAG, "Recorded Audio buff_size: " + Integer.toString(buff_size));
-
-        //make buff_size divisible by 8
-        buff_size += 8 - buff_size%8;
-
 
         prepare();
 
@@ -86,22 +79,15 @@ public class Player implements Runnable{
 
         audioThread= new Thread(this, "Player: Audio Playback Thread");
 
-        //delay line testing
-        delayl = new DelayLine(88200);
-        delayl.setDelayLineDelay(44100);
-
-        // set delay to 100ms
-        delay = new DelayEffect(8820);
-        delay.setDelayTime(4410);
+        // set delay to 1s
+        delay = new DelayEffect(88200);
+        delay.setDelayTime(44100);
 
         // set delay parameters
-        delay.setWetGain(1);
-        delay.setDryGain(1);
-        delay.setFeedbackGain(0);
+        delay.setWetGain(.8);
+        delay.setDryGain(1.);
+        delay.setFeedbackGain(.5);
     }
-
-
-
 
     public boolean isPlaying(){
         return isPlaying;
@@ -124,27 +110,22 @@ public class Player implements Runnable{
         //tell track to be ready to play audio
         track.play();
 
-        /*try {
-            dis.skipBytes(44);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-        ByteBuffer bb = ByteBuffer.allocate(8);
         while(isPlaying){
             try {
                 //fill buffer with bytes from file reader
-                for(int i=0; i < buff_size/8; i++)
+                double sample;
+                for(int i=0; i < buff_size/2; i++)
                 {
-                    //buff[i] = dis.readByte();
+                    if (bis.available() > 0)
+                        bis.read(buff,i*2, 2);
+                    else
+                        buff[i*2] = buff[i*2+1] = 0;
 
-                    /*
-                    Read double from input, tick() the effects,
-                    then save to bytebuffer.
-                     */
-                    bb.putDouble(0, delayl.tick(dis.readDouble()));
-                    bb.rewind();
-                    bb.get(buff,i*8,8);
+                    sample = bytesToSample(buff, i*2);
+
+                    sample = delay.tick(sample);
+
+                    sampleToBytes(sample, buff, i*2);
                 }
 
                 //write buffer to track to play
@@ -163,4 +144,24 @@ public class Player implements Runnable{
         isPlaying = false;
     }
 
+    /**
+     * Converts 2 bytes from the buffer, starting at the offset,
+     * into an audio sample of type double.
+     */
+    private double bytesToSample(byte[] buff, int offset)
+    {
+        return ((buff[offset + 0] & 0xFF) | (buff[offset + 1] << 8) ) / 32768.0;
+    }
+
+    /**
+     * Converts sample of type double into 2 bytes,
+     * and stores into the byte buffer starting at the given offset.
+     */
+    private void sampleToBytes(double sample, byte[] buff, int offset)
+    {
+        sample = Math.min(1.0, Math.max(-1.0, sample));
+        int nsample = (int) Math.round(sample * 32767.0);
+        buff[offset + 1] = (byte) ((nsample >> 8) & 0xFF);
+        buff[offset + 0] = (byte) (nsample & 0xFF);
+    }
 }

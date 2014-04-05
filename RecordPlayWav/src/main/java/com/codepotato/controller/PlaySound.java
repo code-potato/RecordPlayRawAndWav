@@ -83,7 +83,7 @@ public class PlaySound extends Activity {
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("stack1", e.getMessage());
             }
         }
 
