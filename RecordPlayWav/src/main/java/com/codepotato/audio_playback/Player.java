@@ -114,18 +114,27 @@ public class Player implements Runnable{
             try {
                 //fill buffer with bytes from file reader
                 double sample;
-                for(int i=0; i < buff_size/2; i++)
+                for(int i=0; i < buff_size; i+= 2)  //increment index by two because 16bit mono sample is 2 bytes long
                 {
-                    if (bis.available() > 0)
-                        bis.read(buff,i*2, 2); //reads 2 bytes from stream and stores them in buff at offset i*2
-                    else
-                        buff[i*2] = buff[i*2+1] = 0;
+                    //reads 2 bytes from stream and stores them in buff at offset i. returns number of bytes read.
+                    //if bytes are read, condition is TRUE
+                    if (bis.read(buff,i, 2) > 0){
 
-                    sample = bytesToSample(buff, i*2);
+                        //bis.read(buff,i, 2);
+                        sample = bytesToSample(buff, i);
 
-                    sample = delay.tick(sample);
+                        sample = delay.tick(sample);
 
-                    sampleToBytes(sample, buff, i*2);
+                        sampleToBytes(sample, buff, i);
+
+                    }
+                    else { //EOF: no more bytes to read in bytestream
+
+                        this.pause(); //CAUTION. Might cause a minor bug if pause() just pauses. Might need to define stop();
+                        break;
+
+                    }
+
                 }
 
                 //write buffer to track to play
