@@ -117,7 +117,7 @@ public class Player implements Runnable{
                 for(int i=0; i < buff_size/2; i++)
                 {
                     if (bis.available() > 0)
-                        bis.read(buff,i*2, 2);
+                        bis.read(buff,i*2, 2); //reads 2 bytes from stream and stores them in buff at offset i*2
                     else
                         buff[i*2] = buff[i*2+1] = 0;
 
@@ -145,8 +145,8 @@ public class Player implements Runnable{
     }
 
     /**
-     * Converts 2 bytes from the buffer, starting at the offset,
-     * into an audio sample of type double.
+     * Converts 2 bytes from the buffer(small endian), starting at the offset,
+     * into an audio sample of type double (big endian).
      */
     private double bytesToSample(byte[] buff, int offset)
     {

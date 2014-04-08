@@ -1,11 +1,14 @@
 /build
-.gradle
 /local.properties
 /.idea/workspace.xml
 
 .idea/workspace.xml
 .idea/uiDesigner.xml
+.idea/tasks.xml
+.idea/gradle.xml
 /local.properties
+
+#*.iml
 
 
 .DS_Store
