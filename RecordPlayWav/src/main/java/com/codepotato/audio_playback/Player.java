@@ -154,12 +154,26 @@ public class Player implements Runnable{
     }
 
     /**
-     * Converts 2 bytes from the buffer(small endian), starting at the offset,
+     * Converts 2 bytes from the buffer (in small endian format), starting at the offset,
      * into an audio sample of type double (big endian).
      */
     private double bytesToSample(byte[] buff, int offset)
     {
-        return ((buff[offset + 0] & 0xFF) | (buff[offset + 1] << 8) ) / 32768.0;
+        //                Low Byte          MASK        High Byte     Left Shift
+        double sample= ((buff[offset + 0] & 0xFF) | (buff[offset + 1] << 8) );
+        /*Explanation: The first part, we take the Low Byte and use an AND mask of 1111 1111 to ensure that we just get
+        * the first 8 bits(NOTE: this is redundant since a byte is 8 bits to begin with). (1011 0000) & (1111 1111)= 1011 0000
+        * NEXT: We take the High Byte and shift it 8 Bytes to the left. In Java, this promotes it to an integer(32 bits).
+        * Next we merge the int representing High Byte and the Low Byte with a bitwise OR operator
+        * 00000000 0000000 10101111 00000000
+        *                       OR  10110000 =
+        * 00000000 0000000 10101111 10110000 Now our bytes are in the Big Endian order required for primitive types */
+
+        //since 2 bytes is a short which has range -32768 to +32767, we divide by 32768 to normalize to -1.0 to +1.0 range for DSP
+        sample = sample /32768.0;
+
+        return sample;
+
     }
 
     /**
@@ -168,9 +182,9 @@ public class Player implements Runnable{
      */
     private void sampleToBytes(double sample, byte[] buff, int offset)
     {
-        sample = Math.min(1.0, Math.max(-1.0, sample));
-        int nsample = (int) Math.round(sample * 32767.0);
-        buff[offset + 1] = (byte) ((nsample >> 8) & 0xFF);
-        buff[offset + 0] = (byte) (nsample & 0xFF);
+        sample = Math.min(1.0, Math.max(-1.0, sample));  //ensures that our double is within the -1.0 to +1.0 range
+        int nsample = (int) Math.round(sample * 32767.0);//expands it to the range of -32768 to 32767 range of short, round, & truncate
+        buff[offset + 1] = (byte) ((nsample >> 8) & 0xFF); //isolate and extract the high byte
+        buff[offset + 0] = (byte) (nsample & 0xFF);        //isolate the low byte with MASK
     }
 }
