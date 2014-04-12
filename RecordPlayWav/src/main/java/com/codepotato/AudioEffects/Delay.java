@@ -5,20 +5,21 @@ import android.util.Log;
 /**
  * Created by michael on 4/1/14.
  */
-public class DelayEffect {
+public class Delay {
 
     private DelayLine delayBuf;
     private double wetGain;
     private double dryGain;
     private double feedbackGain;
 
-    public DelayEffect(int inDelay)
+    public Delay(int inDelay)
     {
         delayBuf = new DelayLine(inDelay);
     }
 
-    public void setDelayTime(double newDelay)
+    public void setDelayAmt(double newDelay)
     {
+        delayBuf = new DelayLine((int)(newDelay * 2));
         delayBuf.setDelayLineDelay(newDelay);
     }
 
@@ -64,6 +65,7 @@ public class DelayEffect {
         double temp = feedbackGain * delayBuf.getCurrentOut();
         output = delayBuf.tick(input + temp);
         output = (input * dryGain) + (output * wetGain);
+
         //adjust for clipping
         if (output > 1.0)
             output = 1.0;
@@ -71,6 +73,5 @@ public class DelayEffect {
             output = -1.0;
 
         return output;
-//        return input * dryGain;
     }
 }

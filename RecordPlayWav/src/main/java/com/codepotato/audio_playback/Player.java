@@ -4,13 +4,12 @@ import android.content.res.*;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.provider.MediaStore;
 import android.util.Log;
-import com.codepotato.AudioEffects.DelayEffect;
+import com.codepotato.AudioEffects.Delay;
 import com.codepotato.AudioEffects.DelayLine;
+import com.codepotato.AudioEffects.EchoEffect;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 
 
 public class Player implements Runnable{
@@ -28,9 +27,8 @@ public class Player implements Runnable{
     private boolean isStereo; //stereo or mono
     private static final String LOG_TAG= "XPlayer";
 
-    //delay effect
-    private DelayEffect delay;
-    private DelayLine delayl;
+    EchoEffect echo;
+
 
     /**for the song file that michael has been using, which I assume is stereo
      *
@@ -79,14 +77,13 @@ public class Player implements Runnable{
 
         audioThread= new Thread(this, "Player: Audio Playback Thread");
 
-        // set delay to 1s
-        delay = new DelayEffect(88200);
-        delay.setDelayTime(44100);
+        //set echo effect
+        echo = new EchoEffect();
+        echo.setFeedbackGain(0);
+        echo.setDelayTime(1000);
+        echo.setWetGain(.5);
+        echo.setDryGain(1.2);
 
-        // set delay parameters
-        delay.setWetGain(.8);
-        delay.setDryGain(1.);
-        delay.setFeedbackGain(.5);
     }
 
     public boolean isPlaying(){
@@ -118,22 +115,25 @@ public class Player implements Runnable{
                 {
                     //reads 2 bytes from stream and stores them in buff at offset i. returns number of bytes read.
                     //if bytes are read, condition is TRUE
-                    if (bis.read(buff,i, 2) > 0){
-
-                        //bis.read(buff,i, 2);
-                        sample = bytesToSample(buff, i);
-
-                        sample = delay.tick(sample);
-
-                        sampleToBytes(sample, buff, i);
-
+                    if (bis.available() > 0){
+                        bis.read(buff,i, 2);
                     }
-                    else { //EOF: no more bytes to read in bytestream
-
-                        this.pause(); //CAUTION. Might cause a minor bug if pause() just pauses. Might need to define stop();
-                        break;
-
+                    else {
+                        buff[i] = 0; buff[i+1] = 0;
                     }
+
+                    sample = bytesToSample(buff, i);
+
+                    sample = echo.tick(sample);
+
+                    sampleToBytes(sample, buff, i);
+
+//                    else { //EOF: no more bytes to read in bytestream
+//
+//                        this.pause(); //CAUTION. Might cause a minor bug if pause() just pauses. Might need to define stop();
+//                        break;
+//
+//                    }
 
                 }
 
