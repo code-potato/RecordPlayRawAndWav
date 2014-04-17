@@ -71,16 +71,16 @@ public class PlaySound extends Activity {
 
                 }
                 //if the Play Mikes Audio button was pressed
-                else if (button_id == R.id.button2){
-                    updateButtonStatus(button); //first the GUI stuff
-                    // get file from asset folder
-                    AssetFileDescriptor filedes = getAssets().openFd(MICHAELS_SOUND_FILE);
-                    Log.d("FUCK", filedes.toString());
-                    // instantiate player object
-                    player = new Player(filedes);
-                    player.play();
-
-                }
+//                else if (button_id == R.id.button2){
+//                    updateButtonStatus(button); //first the GUI stuff
+//                    // get file from asset folder
+//                    AssetFileDescriptor filedes = getAssets().openFd(MICHAELS_SOUND_FILE);
+//                    Log.d("FUCK", filedes.toString());
+//                    // instantiate player object
+//                    player = new Player(filedes);
+//                    player.play();
+//
+//                }
 
             } catch (IOException e) {
                 Log.d("stack1", e.getMessage());

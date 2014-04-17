@@ -7,7 +7,7 @@ package com.codepotato.AudioEffects;
  *
  */
 
-public class EchoEffect
+public class EchoEffect extends TimeBasedEffect
 {
     private Delay delay;
     private double delayTime; // in milliseconds
@@ -32,7 +32,7 @@ public class EchoEffect
         delay.setFeedbackGain(feedbackGain);
     }
 
-    public double tick(Double input)
+    public double tick(double input)
     {
         return delay.tick(input);
     }
