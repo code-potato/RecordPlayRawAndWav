@@ -4,6 +4,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
+import com.codepotato.AudioEffects.ChorusEffect;
 import com.codepotato.AudioEffects.EchoEffect;
 
 import java.io.*;
@@ -22,7 +23,7 @@ public class Player implements Runnable{
     private static final String LOG_TAG= "XPlayer";
 
     // test stuff //
-    EchoEffect echo;
+    ChorusEffect chorus;
 
     public Player(File audioFile) throws IOException {
 
@@ -32,6 +33,7 @@ public class Player implements Runnable{
 
         // setup byte buffer
         buff_size = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        buff_size *= 5;
         buff = new byte[buff_size];
 
         //setup audio track
@@ -42,11 +44,7 @@ public class Player implements Runnable{
 
 
         // test stuff //
-        echo = new EchoEffect();
-        echo.setFeedbackGain(.3);
-        echo.setDelayTime(500);
-        echo.setWetGain(.3);
-        echo.setDryGain(1.);
+        chorus = new ChorusEffect();
 
     }
 
@@ -81,7 +79,7 @@ public class Player implements Runnable{
                     sample = sampleReader.nextSample();
 
                     //sample = effectChain.tickAll(sample);
-                    sample = echo.tick(sample);
+                    sample = chorus.tick(sample);
 
                     sampleReader.sampleToBytes(sample, buff, i);
                 }
