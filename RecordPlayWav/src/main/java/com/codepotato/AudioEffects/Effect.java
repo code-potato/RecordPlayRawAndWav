@@ -5,7 +5,9 @@ package com.codepotato.AudioEffects;
  */
 public abstract class Effect {
 
-    private int id;
+    final protected int sampleRate = 44100;
+
+    protected int id;
 
     public int getId() {
         return id;
