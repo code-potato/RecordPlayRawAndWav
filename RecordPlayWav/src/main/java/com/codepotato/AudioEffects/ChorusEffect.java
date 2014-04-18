@@ -44,7 +44,6 @@ public class ChorusEffect extends TimeBasedEffect
     }
 
     public void setDepth(double depth) {
-
         this.depth = depth;
     }
 
@@ -54,5 +53,6 @@ public class ChorusEffect extends TimeBasedEffect
 
     public void setRate(double rate) {
         this.rate = rate;
+        sin.setSinFreq(rate);
     }
 }

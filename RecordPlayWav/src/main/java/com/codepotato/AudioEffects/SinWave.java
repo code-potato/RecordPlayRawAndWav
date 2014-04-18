@@ -31,19 +31,19 @@ class SinWave {
         sampleRate = sr;
     }
 
-    void setMakeSineFreq(double freq){
+    void setSinFreq(double freq){
         frequency = freq;
     }
 
-    double getMakeSineFreq(){
+    double getSinFreq(){
         return frequency;
     }
 
-    void setMakeSineInitPhase(double phase){
+    void setSinInitPhase(double phase){
         initialPhase = phase;
     }
 
-    double getMakeSineInitPhase(){
+    double getSinInitPhase(){
         return initialPhase;
     }
 
