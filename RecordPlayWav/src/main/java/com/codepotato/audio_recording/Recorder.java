@@ -1,5 +1,6 @@
 package com.codepotato.audio_recording;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -25,6 +26,7 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
     private boolean isRecording = false; //a flag for the thread to determine when to stop recording
     private static final String TEMP_FILE_NAME= "recorded_audio_file.raw"; //temp file name for initial audiofile creation. will be renamed to .wav later
     private static final String SAVED_WAV_FOLDER = "SavedWavFiles";  //where our .wav files are saved
+    private static final String SAVED_RAW_FOLDER="SavedRawFiles"; //where our .raw files are stored
     private static final String LOGTAG = "Recorder";
 
     //Audio format related variables
@@ -140,6 +142,19 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
     }
 
     /**
+     * Saves the recorded audio file to app SD root/SavedRawFiles
+     * @param fileName User defined name of audio file
+     */
+    public File save(String fileName){
+        fileName.concat(".raw"); //adding the .raw file extension to the file name
+        File completeSavePath= new File(this.getSavedRawDirectory(), fileName);
+
+        rawAudioFile.renameTo(completeSavePath);
+
+        return completeSavePath;
+    }
+
+    /**
      * Not Yet finished
      * @param waveFileNameString
      */
@@ -203,9 +218,13 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
         return folder;
     }
 
-    private void deleteTempRawFile() {
-        rawAudioFile.delete();
+    private File getSavedRawDirectory(){
+        File folder= new File(filepath, SAVED_RAW_FOLDER);
+        if(!folder.exists())
+            folder.mkdir();
+        return folder;
     }
+
 
     /**
      * NOT YET COMPLETED

@@ -66,8 +66,10 @@ public class RecordMain extends Activity {
 
     public void stopRecording(){
         recorder.stop();
-        //convert to wave and rename calls should go here
-        File recordedRawFile= new File(this.getExternalFilesDir(null), "recorded_audio_file.raw");
+        //save call should go here
+        File recordedRawFile= recorder.save("SweetSounds");
+        //File recordedRawFile= new File(this.getExternalFilesDir(null), "recorded_audio_file.raw");
+
         Log.d(LOG_TAG, recordedRawFile.toString());
         goToPlaySoundView(recordedRawFile.toString());
     }
