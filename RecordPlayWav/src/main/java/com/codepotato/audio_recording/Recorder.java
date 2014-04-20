@@ -37,8 +37,8 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
 
     /**
      *
-     * @param filepath the file path of the apps sandboxed directory. Can be retrieved via context.getFilesDir in
-     *                 an Activity Class
+     * @param filepath the file path of the apps sandboxed directory. Can be retrieved via Context.getFilesDir in
+     *                 an Activity Class using the this.getFilesDir() method
      * @see android.content.Context.getFilesDir();
      */
     public Recorder(File filepath){
@@ -142,7 +142,7 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
     }
 
     /**
-     * Saves the recorded audio file to app SD root/SavedRawFiles
+     * Saves the recorded audio file to the dir app sandbox root/SavedRawFiles/ dir
      * @param fileName User defined name of audio file
      */
     public File save(String fileName){

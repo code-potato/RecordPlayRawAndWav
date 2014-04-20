@@ -55,7 +55,7 @@ public class RecordMain extends Activity {
 
     public void startRecording(){
 
-        File filepath= this.getExternalFilesDir(null);  //passing null brings us the root of the apps private sandboxed directory
+        File filepath= this.getFilesDir();  //returns us the root of the apps private sandboxed directory
         Log.d(LOG_TAG, filepath.toString());
         recorder= new Recorder(filepath);
         recorder.start();
