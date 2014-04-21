@@ -154,69 +154,7 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
         return completeSavePath;
     }
 
-    /**
-     * Not Yet finished
-     * @param waveFileNameString
-     */
-    public void convertToWavFile(String waveFileNameString){
 
-        FileInputStream raw_in;
-        FileOutputStream wav_out;
-        int totalAudioLen;
-        int totalDataLen;
-        //int longSampleRate = RECORDER_SAMPLERATE; //WAV Header info requires Long datatype?
-        int channels = 1; //we're recording in mono
-        int recorderBitsPerSample;
-
-        //this if statement is just for the sake of coding defensively.
-        if(RECORDER_ENCODING== AudioFormat.ENCODING_PCM_16BIT)
-            recorderBitsPerSample = 16;
-        else if (RECORDER_ENCODING== AudioFormat.ENCODING_PCM_8BIT)
-            recorderBitsPerSample = 8;
-
-        int byteRate = recorderBitsPerSample * RECORDER_SAMPLERATE * channels/8; //(bits per sample * Samples per second * channels) / 8 = bytes per second
-        byte data_buffer[] = new byte[minBufferSizeInBytes];
-        int bytesRead = 0;
-        int byteCountOffset = 0;
-
-        File wavFile = new File(getWavDirectory(), waveFileNameString);
-
-        try {
-            raw_in= new FileInputStream(rawAudioFile);
-            wav_out= new FileOutputStream(wavFile);
-
-            insertWaveFileHeader();
-            //------------------------
-
-            while(raw_in.read(data_buffer) != -1){ //FileInputStream.read returns -1 if end of stream is reached
-                wav_out.write(data_buffer);
-
-            }
-            raw_in.close();
-            wav_out.close();
-
-        } catch (FileNotFoundException fnfe) {
-            Log.e(LOGTAG, "Something went wrong with finding or creating a file");
-            Log.e(LOGTAG, Log.getStackTraceString(fnfe));
-        } catch (IOException ioe) {
-            Log.e(LOGTAG, "Something went wrong with writing wav file");
-            Log.e(LOGTAG, Log.getStackTraceString(ioe));
-        }
-
-    }
-
-    /**
-     * Retrieves the dir/path used to store wav files
-     * @return
-     */
-    private File getWavDirectory() {
-
-        File folder= new File(filepath, SAVED_WAV_FOLDER);
-        if (!folder.exists())
-            folder.mkdir();
-
-        return folder;
-    }
 
     private File getSavedRawDirectory(){
         File folder= new File(filepath, SAVED_RAW_FOLDER);
@@ -224,15 +162,5 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
             folder.mkdir();
         return folder;
     }
-
-
-    /**
-     * NOT YET COMPLETED
-     */
-    private void insertWaveFileHeader() {
-
-    }
-
-
 
 }

@@ -17,11 +17,11 @@ public class SampleReader
     private BufferedInputStream inputStream;
     private byte[] byteBuff;
 
-    public SampleReader (File file, int sr, int bitRes, int numChan) throws FileNotFoundException
+    public SampleReader (File file, int sampleRate, int bitRate, int numChan) throws FileNotFoundException
     {
         audioFile = file;
-        sampleRate = sr;
-        bitResolution = bitRes;
+        this.sampleRate = sampleRate;
+        bitResolution = bitRate;
         numChannels = numChan;
 
         fis = new FileInputStream(audioFile);
