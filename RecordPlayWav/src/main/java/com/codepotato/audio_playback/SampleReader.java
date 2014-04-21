@@ -37,7 +37,7 @@ public class SampleReader
     public double nextSample() throws IOException
     {
         if (inputStream.available() > 0){
-            inputStream.read(byteBuff, 0, 2);
+            inputStream.read(byteBuff, 0, 2); //returns -1 end of stream. Not doing anything with this.
         }
         else {
             byteBuff[0] = 0; byteBuff[1] = 0;
@@ -53,7 +53,7 @@ public class SampleReader
         *                       OR  10110000 =
         * 00000000 0000000 10101111 10110000 Now our bytes are in the Big Endian order required for primitive types */
 
-        //since 2 bytes is a short which has range -32768 to +32767, we divide by 32768 to normalize to -1.0 to +1.0 range for DSP
+         //since 2 bytes is a short which has range -32768 to +32767, we divide by 32768 to normalize to -1.0 to +1.0 range for DSP
         sample = sample /32768.0;
 
         return sample;
