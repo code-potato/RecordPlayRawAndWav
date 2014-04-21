@@ -1,7 +1,6 @@
 package com.codepotato.controller;
 
 import com.codepotato.AudioEffects.Effect;
-//import com.codepotato.model.effects.*;
 
 import java.util.ArrayList;
 
@@ -67,12 +66,9 @@ public class EffectChain {
 
     public Effect getEffect(int effID){
 
-        Effect temp;
-
-        for(int i=0; i<effectList.size(); i++){
-            temp = effectList.get(i);
-            if(temp.getId() == effID){
-                return temp; //return effectList.get(i);
+        for(Effect eff : effectList){
+            if(eff.getId() == effID){
+                return eff; //returns effect with matching effect ID
             }
         }
         //went though entire effect list, didn't find effID
@@ -93,6 +89,12 @@ public class EffectChain {
         }
     }
     */
+
+    public void deleteAllEffects(){
+        for(Effect eff : effectList){
+            removeEffect(eff.getId());
+        }
+    }
 
     public double tickAll(double input) {
         for(Effect eff : effectList){
