@@ -7,6 +7,7 @@ import android.util.Log;
 import com.codepotato.AudioEffects.ChorusEffect;
 import com.codepotato.AudioEffects.EchoEffect;
 import com.codepotato.controller.EffectChain;
+import com.codepotato.controller.EffectChainFactory;
 
 import java.io.*;
 
@@ -40,7 +41,7 @@ public class Player implements Runnable{
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 32000, AudioTrack.MODE_STREAM);
 
-        effectChain = new EffectChain(); //change to factory when factory is done
+        effectChain = EffectChainFactory.initEffectChain();
     }
 
     public boolean isPlaying(){
@@ -48,6 +49,7 @@ public class Player implements Runnable{
     }
 
     public void play() {
+        // create and run new thread for playback
         audioThread= new Thread(this, "Player: Audio Playback Thread");
         audioThread.start(); //executes the code in the Player.run() method
     }
@@ -90,7 +92,11 @@ public class Player implements Runnable{
 
     public void pause() {
         Log.d("player", "pause");
+
+        track.pause();
         isPlaying = false;
+
+        // kill playback thread
         audioThread.interrupt();
         audioThread = null;
     }
