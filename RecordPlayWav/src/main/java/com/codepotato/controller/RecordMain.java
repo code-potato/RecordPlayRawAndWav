@@ -55,7 +55,7 @@ public class RecordMain extends Activity {
 
     public void startRecording(){
 
-        File filepath= this.getExternalFilesDir(null);  //passing null brings us the root of the apps private sandboxed directory
+        File filepath= this.getFilesDir();  //returns us the root of the apps private sandboxed directory
         Log.d(LOG_TAG, filepath.toString());
         recorder= new Recorder(filepath);
         recorder.start();
@@ -66,8 +66,10 @@ public class RecordMain extends Activity {
 
     public void stopRecording(){
         recorder.stop();
-        //convert to wave and rename calls should go here
-        File recordedRawFile= new File(this.getExternalFilesDir(null), "recorded_audio_file.raw");
+        //save call should go here
+        File recordedRawFile= recorder.save("SweetSounds");
+        //File recordedRawFile= new File(this.getExternalFilesDir(null), "recorded_audio_file.raw");
+
         Log.d(LOG_TAG, recordedRawFile.toString());
         goToPlaySoundView(recordedRawFile.toString());
     }
