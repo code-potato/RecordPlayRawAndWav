@@ -49,6 +49,11 @@ public class PlaySound extends Activity {
         Intent intent = getIntent();
         String filepath= intent.getStringExtra("FILEPATH");
         audioFile= new File(filepath);
+        try {
+            player= new Player(audioFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //------/BEEF
     }
 
@@ -61,16 +66,15 @@ public class PlaySound extends Activity {
 
 
         if(is_playing){ //user clicked on a play button
-            try
-            {
-                //if the Play Recorded Audio button was pressed
-                if (button_id == R.id.button){
-                    updateButtonStatus(button);
-                    player= new Player(audioFile);
-                    player.play();
 
-                }
-                //if the Play Mikes Audio button was pressed
+            //if the Play Recorded Audio button was pressed
+            if (button_id == R.id.button){
+                updateButtonStatus(button);
+//                    player= new Player(audioFile);
+                player.play();
+
+            }
+            //if the Play Mikes Audio button was pressed
 //                else if (button_id == R.id.button2){
 //                    updateButtonStatus(button); //first the GUI stuff
 //                    // get file from asset folder
@@ -81,10 +85,6 @@ public class PlaySound extends Activity {
 //                    player.play();
 //
 //                }
-
-            } catch (IOException e) {
-                Log.d("stack1", e.getMessage());
-            }
         }
 
         else{ //if user clicked on a stop button

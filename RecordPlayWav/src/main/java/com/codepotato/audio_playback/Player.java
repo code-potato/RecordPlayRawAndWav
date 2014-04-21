@@ -6,6 +6,7 @@ import android.media.AudioTrack;
 import android.util.Log;
 import com.codepotato.AudioEffects.ChorusEffect;
 import com.codepotato.AudioEffects.EchoEffect;
+import com.codepotato.controller.EffectChain;
 
 import java.io.*;
 
@@ -16,14 +17,13 @@ public class Player implements Runnable{
 
     SampleReader sampleReader;
     private byte[] buff;
+    EffectChain effectChain;
 
     private AudioTrack track;
     private Thread audioThread;
 
     private static final String LOG_TAG= "XPlayer";
 
-    // test stuff //
-    ChorusEffect chorus;
 
     public Player(File audioFile) throws IOException {
 
@@ -33,19 +33,14 @@ public class Player implements Runnable{
 
         // setup byte buffer
         buff_size = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        buff_size *= 5;
         buff = new byte[buff_size];
 
         //setup audio track
         track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 32000, AudioTrack.MODE_STREAM);
-        audioThread= new Thread(this, "Player: Audio Playback Thread");
 
-
-        // test stuff //
-        chorus = new ChorusEffect();
-
+        effectChain = new EffectChain(); //change to factory when factory is done
     }
 
     public boolean isPlaying(){
@@ -53,6 +48,7 @@ public class Player implements Runnable{
     }
 
     public void play() {
+        audioThread= new Thread(this, "Player: Audio Playback Thread");
         audioThread.start(); //executes the code in the Player.run() method
     }
 
@@ -71,15 +67,14 @@ public class Player implements Runnable{
 
         while(isPlaying){
             try {
-                //fill buffer with bytes from file reader
-                double sample;
 
+                double sample;
+                //fill buffer with bytes from sampleReader
                 for(int i=0; i < buff_size; i+= 2)  //increment index by two because 16bit mono sample is 2 bytes long
                 {
                     sample = sampleReader.nextSample();
 
-                    //sample = effectChain.tickAll(sample);
-                    sample = chorus.tick(sample);
+                    sample = effectChain.tickAll(sample);
 
                     sampleReader.sampleToBytes(sample, buff, i);
                 }
@@ -96,6 +91,8 @@ public class Player implements Runnable{
     public void pause() {
         Log.d("player", "pause");
         isPlaying = false;
+        audioThread.interrupt();
+        audioThread = null;
     }
 
 }
