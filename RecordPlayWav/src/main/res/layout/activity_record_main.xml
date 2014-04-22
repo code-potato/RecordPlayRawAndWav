@@ -5,9 +5,18 @@
     android:layout_height="match_parent"
     tools:context="com.codepotato.controller.RecordMain"
     tools:ignore="MergeRootFrame" >
-    <Button
+    <ToggleButton
+            android:layout_width="97dp"
+            android:layout_height="83dp"
+            android:id="@+id/recordButton" android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="60dp" android:background="@drawable/record_button"
+            android:onClick="toggleRecording" android:checked="false" android:clickable="false" android:textOff=" "
+            android:textOn=" "/>
+    <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/start_recording"
-            android:id="@+id/button" android:layout_gravity="center" android:onClick="toggleRecording"/>
+            android:layout_height="92dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="00:00"
+            android:id="@+id/stopwatch" android:layout_gravity="center_horizontal|top" android:textSize="86dp"
+            android:textStyle="bold" android:layout_marginTop="60dp"/>
 </FrameLayout>

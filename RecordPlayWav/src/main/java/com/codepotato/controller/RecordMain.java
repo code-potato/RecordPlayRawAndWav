@@ -2,9 +2,14 @@ package com.codepotato.controller;
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,38 +18,43 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 import com.codepotato.audio_recording.Recorder;
 
 import java.io.File;
 
 public class RecordMain extends Activity {
 
-    public static final String LOG_TAG= "AudioRecordingTest"; //for debugging purposes
+    public static final String LOG_TAG= "CodePotatoAudioRecordingTest"; //for debugging purposes
     private Recorder recorder;
 
+    private TextView textTimer;
+    private long startTime = 0L;
+    private Handler myHandler = new Handler();
+    long elapsedTime = 0L;
 
-    private boolean is_recording_flag= false; //mainly to change the button state from start recording -> stop recording
+
+    //private boolean is_recording_flag= false; //mainly to change the button state from start recording -> stop recording
 
     /**
      * This function is called upon a button press in the main view.
      * @param view is passed implicitly by the GUI.
      */
     public void toggleRecording(View view){
-        Button recordButton= (Button) view;
-        String button_text;
-        is_recording_flag= !is_recording_flag; //inverting the flags bool value
+        ToggleButton recordToggle= (ToggleButton) view;
+
 
         //Start Recording is pressed
-        if(is_recording_flag){
-            button_text = this.getString(R.string.stop_recording); //gets the string associated with stop_recording in strings.xml file
-            recordButton.setText(button_text);
+        if(recordToggle.isChecked()){
+            recordToggle.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.done_button)); //changes the buttons background image
             startRecording();
 
         }
         //Stop Recording is pressed
         else{
-            button_text = this.getString(R.string.start_recording);
-            recordButton.setText(button_text);
+            recordToggle.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.record_button));//changes the button background image
             stopRecording();
 
         }
@@ -56,22 +66,81 @@ public class RecordMain extends Activity {
     public void startRecording(){
 
         File filepath= this.getFilesDir();  //returns us the root of the apps private sandboxed directory
-        Log.d(LOG_TAG, filepath.toString());
         recorder= new Recorder(filepath);
         recorder.start();
 
+        //Starts the Stopwatch/Timer
+        elapsedTime = 0L;
+        startTime = SystemClock.uptimeMillis();
+        myHandler.postDelayed(updateTimer, 1000);
 
 
     }
 
     public void stopRecording(){
         recorder.stop();
-        //save call should go here
-        File recordedRawFile= recorder.save("SweetSounds");
-        //File recordedRawFile= new File(this.getExternalFilesDir(null), "recorded_audio_file.raw");
 
-        Log.d(LOG_TAG, recordedRawFile.toString());
-        goToPlaySoundView(recordedRawFile.toString());
+        myHandler.removeCallbacks(updateTimer); //stops the timer
+
+        askUserForSaveFileName();
+        //String fileNameString = askUserForSaveFileName(); //Prompts user for file name
+        //File recordedRawFile= recorder.save(fileNameString);
+
+        //Log.d(LOG_TAG, recordedRawFile.toString());
+        //goToPlaySoundView(recordedRawFile.toString());
+    }
+
+    // A stopwatch thread for the audio recording.
+    private Runnable updateTimer = new Runnable() {
+
+        public void run() {
+            elapsedTime = SystemClock.uptimeMillis() - startTime;
+            int seconds = (int) (elapsedTime / 1000);
+            seconds = seconds % 60;
+            int minutes = seconds / 60;
+            String minutesPrefix = "";
+            if (minutes < 10)
+                minutesPrefix = "0";
+
+            textTimer.setText(minutesPrefix + minutes + ":"
+                    + String.format("%02d", seconds));
+            myHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private void askUserForSaveFileName() {
+
+        //EditText value;
+        // get activity_initial_scr_prompt.xml view
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View promptView = layoutInflater.inflate(R.layout.activity_initial_scr_prompt, null);
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(this); //
+        alert.setTitle("Enter File Name:");
+        alert.setView(promptView);
+        final EditText input = (EditText) promptView.findViewById(R.id.userInput);
+        alert.setCancelable(false)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                       Editable value = input.getText();
+                        // *********Do something with value!*********
+                        value.toString();
+                        //Intent intent = new Intent(InitialScr.this, EffectsConfigScr.class);
+                        //startActivity(intent);
+                        textTimer.setText("00:00");
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // Canceled.
+                        dialog.cancel();
+                        textTimer.setText("00:00");
+                    }
+                });
+        alert.show();
+
+        //Log.d(LOG_TAG, "The Value in EditText is: " + value.toString());
+        //return value.toString();
     }
 
     /** switches to a different view/activity after recording has finished     */
