@@ -122,12 +122,19 @@ public class RecordMain extends Activity {
         alert.setCancelable(false)
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                       Editable value = input.getText();
+                        Editable value = input.getText();
                         // *********Do something with value!*********
-                        value.toString();
-                        //Intent intent = new Intent(InitialScr.this, EffectsConfigScr.class);
-                        //startActivity(intent);
+                        File namedAudioFile= recorder.save(value.toString()); //TODO-senatori refactor this to somewhere more intuitive
                         textTimer.setText("00:00");
+
+                        Intent intent = new Intent(RecordMain.this, /*EffectsConfigScr.class*/ PlaySound.class);
+                        intent.putExtra("FILEPATH", namedAudioFile.toString());//a hash...read bellow
+                        /* An Intent can carry a payload of various data types as key-value pairs called extras.
+                         *  The putExtra() method takes the key name in the first arg and the value in the second arg
+                         */
+                        startActivity(intent);
+
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

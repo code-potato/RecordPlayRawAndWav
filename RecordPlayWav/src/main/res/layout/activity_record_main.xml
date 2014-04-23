@@ -10,7 +10,7 @@
             android:layout_height="83dp"
             android:id="@+id/recordButton" android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="60dp" android:background="@drawable/record_button"
-            android:onClick="toggleRecording" android:checked="false" android:clickable="false" android:textOff=" "
+            android:onClick="toggleRecording" android:checked="false" android:clickable="true" android:textOff=" "
             android:textOn=" "/>
     <TextView
             android:layout_width="wrap_content"

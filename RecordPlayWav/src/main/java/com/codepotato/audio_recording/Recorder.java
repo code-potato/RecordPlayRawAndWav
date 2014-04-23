@@ -143,7 +143,8 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
 
     /**
      * Saves the recorded audio file to the dir app sandbox root/SavedRawFiles/ dir
-     * @param fileName User defined name of audio file
+     * @param fileName String containing the name of audio file
+     * @return File containing the full path of the
      */
     public File save(String fileName){
         fileName.concat(".raw"); //adding the .raw file extension to the file name
