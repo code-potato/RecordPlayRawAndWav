@@ -1,7 +1,6 @@
 package com.codepotato.controller;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -16,8 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -36,10 +33,8 @@ public class RecordMain extends Activity {
     long elapsedTime = 0L;
 
 
-    //private boolean is_recording_flag= false; //mainly to change the button state from start recording -> stop recording
-
     /**
-     * This function is called upon a button press in the main view.
+     * This function is called upon a The Record button press in the main view. This is the insertion point
      * @param view is passed implicitly by the GUI.
      */
     public void toggleRecording(View view){
@@ -82,12 +77,8 @@ public class RecordMain extends Activity {
 
         myHandler.removeCallbacks(updateTimer); //stops the timer
 
-        askUserForSaveFileName();
-        //String fileNameString = askUserForSaveFileName(); //Prompts user for file name
-        //File recordedRawFile= recorder.save(fileNameString);
+        promptUserForSaveFileName();//prompts user for File Name via an Alert Dialogue box.
 
-        //Log.d(LOG_TAG, recordedRawFile.toString());
-        //goToPlaySoundView(recordedRawFile.toString());
     }
 
     // A stopwatch thread for the audio recording.
@@ -108,7 +99,7 @@ public class RecordMain extends Activity {
         }
     };
 
-    private void askUserForSaveFileName() {
+    private void promptUserForSaveFileName() {
 
         //EditText value;
         // get activity_initial_scr_prompt.xml view
@@ -120,20 +111,20 @@ public class RecordMain extends Activity {
         alert.setView(promptView);
         final EditText input = (EditText) promptView.findViewById(R.id.userInput);
         alert.setCancelable(false)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {  //IF THE USER CLICKED ON SAVE BUTTON
                     public void onClick(DialogInterface dialog, int whichButton) {
                         Editable value = input.getText();
-                        // *********Do something with value!*********
-                        File namedAudioFile= recorder.save(value.toString()); //TODO-senatori refactor this to somewhere more intuitive
+                        Log.d(LOG_TAG, "The Value is: " + value.toString());
+                        File namedAudioFile = recorder.save(value.toString()); //TODO-senatori refactor this to somewhere more intuitive
                         textTimer.setText("00:00");
+                        prepareToSwitchViews(namedAudioFile.toString()); //a method defined in this activity.
 
-                        Intent intent = new Intent(RecordMain.this, /*EffectsConfigScr.class*/ PlaySound.class);
-                        intent.putExtra("FILEPATH", namedAudioFile.toString());//a hash...read bellow
+                        //Intent intent = new Intent(RecordMain.this, /*EffectsConfigScr.class*/ PlaySound.class);
+                        //intent.putExtra("FILEPATH", namedAudioFile.toString());//a hash...read bellow
                         /* An Intent can carry a payload of various data types as key-value pairs called extras.
                          *  The putExtra() method takes the key name in the first arg and the value in the second arg
                          */
-                        startActivity(intent);
-
+                        //startActivity(intent);
 
                     }
                 })
@@ -151,7 +142,7 @@ public class RecordMain extends Activity {
     }
 
     /** switches to a different view/activity after recording has finished     */
-    private void goToPlaySoundView(String filepath) {
+    private void prepareToSwitchViews(String filepath) {
 
         //In order to switch Activity/view, you must use an Intent
         Intent intent = new Intent(this, PlaySound.class);//this is the current context, PlaySound.class is the activity we want to switch to
@@ -174,6 +165,8 @@ public class RecordMain extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        textTimer = (TextView) findViewById(R.id.stopwatch);
     }
 
 
