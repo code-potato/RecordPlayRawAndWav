@@ -6,6 +6,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import com.codepotato.AudioEffects.EchoEffect;
 import com.codepotato.audio_playback.SampleReader;
 import com.codepotato.controller.EffectChain;
 import com.codepotato.controller.EffectChainFactory;
@@ -28,6 +29,7 @@ public class FileManager {
 
     public FileManager() {
         effectChain= EffectChainFactory.initEffectChain();
+        effectChain.addEffect(new EchoEffect());
     }
 
     /**
@@ -39,21 +41,31 @@ public class FileManager {
      */
     public boolean exportToExternalMusicDir(File wavFile, Context appContext){
         String stringState = Environment.getExternalStorageState(); //what to make sure that there is an SD or emulated SD
-        File externalWavPath;
-        File externalWavFile;
+        File path;
+        File externalWavFile= new File(wavFile.getParent());
         boolean overalSuccess= true;
 
         int WRITE_BUFF_SIZE = 10000;
         if(Environment.MEDIA_MOUNTED.equals(stringState)){
 
-            externalWavPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC); //returns the path of the Android Music Dir
+            Log.d(LOGTAG, "File path before retreriving external Dir : "+ externalWavFile.toString());
+            path = (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsoluteFile()); //returns the path of the Android Music Dir
 
-            File garbleMeDirectory= new File(externalWavPath, "GarbleMe"); //A folder in the Android Music dir to put the wav files
-            if(!garbleMeDirectory.exists())  //create Dir if it doesn't exist
+            //Log.d(LOGTAG, "external SD absolute path: " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
+            Log.d(LOGTAG, "externalWavPath.toString: " + path.toString());
+
+            /*File garbleMeDirectory= new File(path, "GarbleMe"); //A folder in the Android Music dir to put the wav files
+            Log.d(LOGTAG, "garbleMeDirectory: " + garbleMeDirectory.toString());
+            if(!garbleMeDirectory.exists()){  //create Dir if it doesn't exist
                 overalSuccess= garbleMeDirectory.mkdir(); //returns false if directory creation failed
-            Log.d(LOGTAG, "Directory Created or Exists: "+ Boolean.toString(garbleMeDirectory.exists()));
+                Log.d(LOGTAG, "Attempt to create dir: " + Boolean.toString(overalSuccess));
+            }*/
 
-            externalWavFile = new File(garbleMeDirectory, wavFile.getName());
+            path.mkdirs();
+            overalSuccess= path.exists();
+            Log.d(LOGTAG, "Directory Created or Exists: "+ overalSuccess);
+
+            externalWavFile = new File(path, wavFile.getName());
 
             byte data_buffer [] = new byte[WRITE_BUFF_SIZE];
             try{
@@ -114,13 +126,16 @@ public class FileManager {
         byte data_buffer[] = new byte[BUFF_SIZE];
         int bytesRead = 0;
         int byteCountOffset = 0;
+        long sampleCounter=0; //FOR DEBUGING PURPOSES
+        boolean comparison= false;
 
         //remove the .raw extension**** should probably refactor?
         String waveFileNameString= rawAudioFile.getName();
         StringTokenizer stringTokenizer= new StringTokenizer(waveFileNameString, ".");
         waveFileNameString = stringTokenizer.nextToken(); //now we have our audio file without .raw
         waveFileNameString= waveFileNameString.concat(".wav");
-        Log.d(LOGTAG, waveFileNameString);
+        Log.d(LOGTAG, "convertToWavFile filename: " + waveFileNameString);
+        Log.d(LOGTAG, "raw filesize: " + Long.toString(rawAudioFile.length()));
         //---------------
 
         File wavFile = new File(rawAudioFile.getParent(), waveFileNameString); //TODO-senatori implement a method of deleting the file after it has been shared
@@ -137,26 +152,28 @@ public class FileManager {
                 int zeroCounter=0; //keeps track of the 0.0 double values returned by nextSample() to determine if were at end of file
                 for(bytesProcessed = 0; bytesProcessed < BUFF_SIZE; bytesProcessed+= 2){ //in 16bit mono, a sample is 2 bytes. thus increment by 2
                     sample= sampleReader.nextSample();
-
+                    sampleCounter++;
+                    sample = effectChain.tickAll(sample); //run the sample through the effects
+                    //Log.d(LOGTAG, "Time: " + Long.toString(sampleCounter/44100)+  " EchoSample Val: "+ Double.toString(sample));
                     //TODO-senatori The eof heuristic based code should probably be moved to another function for readability
-                    int comparison= Double.compare(0.0, sample); //if sample is equal to 0.0, it could be eof
-                    if(comparison == 0){ //so we check that there's been at least 20 consecutive zeros
+                    //int comparison= Double.compare(0.0, sample); //if sample is equal to 0.0, it could be eof
+                    comparison= Math.abs(sample)< 1E-8 ;
+                    if(comparison){ //so we check that there's been at least 20 consecutive zeros
                         zeroCounter++;
-                        Log.d(LOGTAG, Integer.toString(zeroCounter)); //TODO-senatori delete this Log.d statement
                     }
                     else
                         zeroCounter=0; //we want consecutive 0.0's
 
-                    if (zeroCounter == 20){ //EOF (this is a heuristical guess really)
+                    if (zeroCounter == 120){ //EOF (this is a heuristical guess really)
                         break;
                     }
                     //***** add effect chain based code here******
 
-                    //sample = effectChain.tickAll(sample); //run the sample through the effects
+
                     sampleReader.sampleToBytes(sample, data_buffer, bytesProcessed); //bytesProcessed is the offset
 
                 }
-                if (zeroCounter >= 20)
+                if (zeroCounter >= 120) //propagating the break through the loops
                     break;
 
                 wav_out.write(data_buffer, 0, bytesProcessed); //writes BUFF_SIZE number of bytes ot the wav_out stream
@@ -170,7 +187,7 @@ public class FileManager {
         try{
             wav_out.write(data_buffer, 0, bytesProcessed); //write what remains in the buffer upon break/interupt.
             wav_out.close();
-            Log.d(LOGTAG, "File Size: " + Long.toString(wavFile.length()));
+            Log.d(LOGTAG, "Wave File Size: " + Long.toString(wavFile.length()));
 
         }catch(IOException ioe){
             //add useless debug logcat statement here

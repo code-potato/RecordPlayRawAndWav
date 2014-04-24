@@ -100,16 +100,19 @@ public class PlaySound extends Activity {
             updateButtonStatus(button);
             player.pause();
 
-            //TESTING the convert to wav functionality and export
-            try {
-                File waveFile= fileManager.convertToWavFile(audioFile);
-                fileManager.exportToExternalMusicDir(waveFile, this.getApplicationContext());
-
-            } catch (IOException e) {
-
-            }
         }
 
+    }
+
+    public void exportWav(View view){
+        //TESTING the convert to wav functionality and export
+        try {
+            File waveFile= fileManager.convertToWavFile(audioFile);
+            fileManager.exportToExternalMusicDir(waveFile, this.getApplicationContext());
+
+        } catch (IOException e) {
+
+        }
     }
 
     public void restartPlayback(View view){

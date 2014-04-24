@@ -23,4 +23,10 @@
             android:id="@+id/start_over"
             android:layout_marginRight="70dp" android:layout_below="@+id/button" android:layout_alignEnd="@+id/button"
             android:layout_marginTop="36dp" android:clickable="true" android:onClick="restartPlayback"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="convert export"
+            android:id="@+id/button2" android:layout_alignParentBottom="true" android:layout_alignEnd="@+id/button"
+            android:layout_marginRight="29dp" android:layout_marginBottom="98dp" android:onClick="exportWav"/>
 </RelativeLayout>
