@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.Button;
 
+import com.codepotato.AudioEffects.ChorusEffect;
 import com.codepotato.FileHandling.FileManager;
 import com.codepotato.audio_playback.Player;
 
@@ -58,6 +59,11 @@ public class PlaySound extends Activity {
             e.printStackTrace();
         }
         //------/BEEF
+
+        /***** Test Effect Chain Stuff *****/
+//        EffectChain chain = EffectChainFactory.initEffectChain();
+//        chain.addEffect(new ChorusEffect());
+//        chain.addEffect(new ChorusEffect());
     }
 
     public void toggleAudio(View view){
@@ -106,6 +112,16 @@ public class PlaySound extends Activity {
 
     }
 
+    public void restartPlayback(View view){
+        try {
+            player.seekToBeginning();
+            Log.d("seekToBeginning", "succeeded");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("seekToBeginning", "failed");
+        }
+    }
+
     /**
      * Determines which button has been pressed and toggles button text and visibility
      * @param pressedButton pass the button that has been pressed
@@ -118,8 +134,8 @@ public class PlaySound extends Activity {
             if(button_id == R.id.button){
                 pressedButton.setText(this.getString(R.string.RecordMain_stop_recorded_audio)); //gets & sets string value stored in res/values/strings.xml
                 //hide visiblity of other button so no two songs get played simultaneously
-                notSelectedButton= (Button) findViewById(R.id.button2);
-                notSelectedButton.setVisibility(View.INVISIBLE);
+//                notSelectedButton= (Button) findViewById(R.id.button2);
+//                notSelectedButton.setVisibility(View.INVISIBLE);
             }
             else{
                 pressedButton.setText(this.getString(R.string.RecordMain_stop_michaels_audio));
@@ -132,8 +148,8 @@ public class PlaySound extends Activity {
             if(button_id == R.id.button){
                 pressedButton.setText(this.getString(R.string.RecordMain_play_recorded_audio)); //gets & sets string value stored in res/values/strings.xml
                 //hide visiblity of other button so no two songs get played simultaneously
-                notSelectedButton= (Button) findViewById(R.id.button2);
-                notSelectedButton.setVisibility(View.VISIBLE);
+//                notSelectedButton= (Button) findViewById(R.id.button2);
+//                notSelectedButton.setVisibility(View.VISIBLE);
             }
             else{
                 pressedButton.setText(this.getString(R.string.RecordMain_play_michaels_audio));

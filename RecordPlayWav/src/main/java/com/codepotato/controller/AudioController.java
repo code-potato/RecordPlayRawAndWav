@@ -50,4 +50,8 @@ public class AudioController {
     public boolean isPlaying(){
         return audioPlayer.isPlaying();
     }
+
+    public void returnPlayerToBeginning() throws IOException {
+        audioPlayer.seekToBeginning();
+    }
 }

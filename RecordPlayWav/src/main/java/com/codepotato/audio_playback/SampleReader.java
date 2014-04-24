@@ -17,7 +17,7 @@ public class SampleReader
     private BufferedInputStream inputStream;
     private byte[] byteBuff;
 
-    public SampleReader (File file, int sampleRate, int bitRate, int numChan) throws FileNotFoundException
+    public SampleReader (File file, int sampleRate, int bitRate, int numChan) throws IOException
     {
         audioFile = file;
         this.sampleRate = sampleRate;
@@ -70,5 +70,16 @@ public class SampleReader
         buff[offset + 1] = (byte) ((nsample >> 8) & 0xFF); //isolate and extract the high byte
         buff[offset + 0] = (byte) (nsample & 0xFF);        //isolate the low byte with MASK
     }
+
+    public void seek(long offset) throws IOException {
+        /* note this may not be the most effecient way to do this */
+
+        //reinitialize stream
+        fis = new FileInputStream(audioFile);
+        inputStream = new BufferedInputStream(fis);
+
+        inputStream.skip(offset);
+    }
+
 
 }
