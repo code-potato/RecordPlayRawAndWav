@@ -13,6 +13,7 @@
     <string name="RecordMain_play_michaels_audio">Play Mike\'s Audio</string>
     <string name="RecordMain_stop_recorded_audio">Stop Recorded Audio</string>
     <string name= "RecordMain_stop_michaels_audio">"Stop Mike's Audio"</string>
+    <string name="restartAudio"><![CDATA[|<]]></string>
 
 
 </resources>
