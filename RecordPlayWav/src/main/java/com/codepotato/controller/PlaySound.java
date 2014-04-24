@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.Button;
 
+import com.codepotato.FileHandling.FileManager;
 import com.codepotato.audio_playback.Player;
 
 import java.io.File;
@@ -30,6 +31,8 @@ public class PlaySound extends Activity {
     private File audioFile;
 
     private boolean is_playing= false;
+
+    FileManager fileManager= new FileManager(); //for testing WAV file conversion and simple Android export
 
 
 
@@ -90,6 +93,15 @@ public class PlaySound extends Activity {
         else{ //if user clicked on a stop button
             updateButtonStatus(button);
             player.pause();
+
+            //TESTING the convert to wav functionality and export
+            try {
+                File waveFile= fileManager.convertToWavFile(audioFile);
+                fileManager.exportToExternalMusicDir(waveFile, this.getApplicationContext());
+
+            } catch (IOException e) {
+
+            }
         }
 
     }

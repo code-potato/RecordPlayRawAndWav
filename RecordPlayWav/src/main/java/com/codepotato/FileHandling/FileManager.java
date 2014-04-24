@@ -1,6 +1,10 @@
 package com.codepotato.FileHandling;
 
+import android.content.Context;
 import android.media.AudioFormat;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import com.codepotato.audio_playback.SampleReader;
 import com.codepotato.controller.EffectChain;
@@ -27,14 +31,81 @@ public class FileManager {
     }
 
     /**
+     * Moves a file to the Android Music Directory. If it is not a WAV, the android music player may not recognize it.
+     * @param wavFile The File object representing the wave file to be exported.
+     * @param appContext an instance of the Application context. Can be retrieved by Context.getApplicationContext in a
+     *                   GUI Activity Class via this.getApplicationContext.
+     * @return true if file was successfully exported (propt user to let them know, etc)
+     */
+    public boolean exportToExternalMusicDir(File wavFile, Context appContext){
+        String stringState = Environment.getExternalStorageState(); //what to make sure that there is an SD or emulated SD
+        File externalWavPath;
+        File externalWavFile;
+        boolean overalSuccess= true;
+
+        int WRITE_BUFF_SIZE = 10000;
+        if(Environment.MEDIA_MOUNTED.equals(stringState)){
+
+            externalWavPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC); //returns the path of the Android Music Dir
+
+            File garbleMeDirectory= new File(externalWavPath, "GarbleMe"); //A folder in the Android Music dir to put the wav files
+            if(!garbleMeDirectory.exists())  //create Dir if it doesn't exist
+                overalSuccess= garbleMeDirectory.mkdir(); //returns false if directory creation failed
+            Log.d(LOGTAG, "Directory Created or Exists: "+ Boolean.toString(garbleMeDirectory.exists()));
+
+            externalWavFile = new File(garbleMeDirectory, wavFile.getName());
+
+            byte data_buffer [] = new byte[WRITE_BUFF_SIZE];
+            try{
+                FileInputStream fis= new FileInputStream(wavFile); //the wave file to be copied
+                FileOutputStream fos= new FileOutputStream(externalWavFile);
+                int bytesRead=0;
+
+                //copying file 10KB at a time via Input & Output streams
+                do {
+                    bytesRead = fis.read(data_buffer,0, WRITE_BUFF_SIZE);
+                    fos.write(data_buffer, 0, bytesRead);
+                }while(bytesRead == WRITE_BUFF_SIZE);  //if bytes read is less then buff size, that was the last read iteration
+
+                fos.close();
+                fis.close();
+
+            }catch(IOException ioe){
+                overalSuccess= false;
+                return overalSuccess;
+            }
+
+            // Tell the media scanner about the new file so that it is
+            // immediately available to the user. This snippet was taken verbatim from the Android Documentation
+            MediaScannerConnection.scanFile(appContext,
+                    new String[] { externalWavFile.toString() }, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                            Log.i("ExternalStorage", "-> uri=" + uri);
+                        }
+                    });
+            appContext= null; //for garbage collection purposes.
+        }
+        else{
+            //external media/public storage is not mounted. This could be because the device's storage is already
+            //mounted to a computer by USB
+            overalSuccess= false;
+            return overalSuccess;
+        }
+        return overalSuccess;
+    }
+
+    /**
      * Makes copy of a raw audio file in the .wav format. Is placed in the same directory as the raw file.
      *
      * @param rawAudioFile The File object representing the raw file you want to convert
+     * @return File object representing the wav file.
      * @throws java.io.FileNotFoundException
      * @see java.io.File
      */
 
-    public void convertToWavFile(File rawAudioFile)throws IOException{
+    public File convertToWavFile(File rawAudioFile)throws IOException{
 
         int BUFF_SIZE= 10000; //10KB buffer
         //FileInputStream raw_in;
@@ -88,7 +159,7 @@ public class FileManager {
                 if (zeroCounter >= 20)
                     break;
 
-                wav_out.write(data_buffer, 0, bytesProcessed);
+                wav_out.write(data_buffer, 0, bytesProcessed); //writes BUFF_SIZE number of bytes ot the wav_out stream
 
             }catch(IOException ioe){
                 //end of file handling
@@ -99,10 +170,13 @@ public class FileManager {
         try{
             wav_out.write(data_buffer, 0, bytesProcessed); //write what remains in the buffer upon break/interupt.
             wav_out.close();
-            Log.d(LOGTAG, "File Size: " + Long.toString(rawAudioFile.length()));
+            Log.d(LOGTAG, "File Size: " + Long.toString(wavFile.length()));
+
         }catch(IOException ioe){
             //add useless debug logcat statement here
         }
+
+        return wavFile;
     }
 
 
