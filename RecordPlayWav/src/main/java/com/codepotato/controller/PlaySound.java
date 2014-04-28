@@ -104,6 +104,7 @@ public class PlaySound extends Activity {
 
     }
 
+    //Called on a button click
     public void exportWav(View view){
         //TESTING the convert to wav functionality and export
         try {

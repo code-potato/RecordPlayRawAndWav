@@ -40,7 +40,7 @@ public class FileManager {
      * @return true if file was successfully exported (propt user to let them know, etc)
      */
     public boolean exportToExternalMusicDir(File wavFile, Context appContext){
-        String stringState = Environment.getExternalStorageState(); //what to make sure that there is an SD or emulated SD
+        String stringState = Environment.getExternalStorageState(); //to make sure that there is an SD or emulated SD
         File path;
         File externalWavFile= new File(wavFile.getParent());
         boolean overalSuccess= true;
@@ -52,20 +52,22 @@ public class FileManager {
             path = (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsoluteFile()); //returns the path of the Android Music Dir
 
             //Log.d(LOGTAG, "external SD absolute path: " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
-            Log.d(LOGTAG, "externalWavPath.toString: " + path.toString());
 
-            /*File garbleMeDirectory= new File(path, "GarbleMe"); //A folder in the Android Music dir to put the wav files
+
+            File garbleMeDirectory= new File(path, "GarbleMe"); //A folder in the Android Music dir to put the wav files
             Log.d(LOGTAG, "garbleMeDirectory: " + garbleMeDirectory.toString());
             if(!garbleMeDirectory.exists()){  //create Dir if it doesn't exist
-                overalSuccess= garbleMeDirectory.mkdir(); //returns false if directory creation failed
+                overalSuccess = garbleMeDirectory.mkdirs(); //returns false if directory creation failed
                 Log.d(LOGTAG, "Attempt to create dir: " + Boolean.toString(overalSuccess));
-            }*/
+            }
 
-            path.mkdirs();
-            overalSuccess= path.exists();
+            //path.mkdirs();
+            overalSuccess = garbleMeDirectory.exists();
+            //overalSuccess= path.exists();
             Log.d(LOGTAG, "Directory Created or Exists: "+ overalSuccess);
 
-            externalWavFile = new File(path, wavFile.getName());
+            externalWavFile = new File(garbleMeDirectory, wavFile.getName());
+            Log.d(LOGTAG, "externalWavFile.toString: " + externalWavFile.toString() );
 
             byte data_buffer [] = new byte[WRITE_BUFF_SIZE];
             try{
@@ -82,9 +84,13 @@ public class FileManager {
                 fos.close();
                 fis.close();
 
+                Log.d(LOGTAG, "externalWavFile size: " + Long.toString(externalWavFile.length()));
+
             }catch(IOException ioe){
                 overalSuccess= false;
+                Log.d(LOGTAG, Log.getStackTraceString(ioe));
                 return overalSuccess;
+
             }
 
             // Tell the media scanner about the new file so that it is
