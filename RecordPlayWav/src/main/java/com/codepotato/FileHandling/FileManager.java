@@ -51,23 +51,19 @@ public class FileManager {
             Log.d(LOGTAG, "File path before retreriving external Dir : "+ externalWavFile.toString());
             path = (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsoluteFile()); //returns the path of the Android Music Dir
 
-            //Log.d(LOGTAG, "external SD absolute path: " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
-
-
             File garbleMeDirectory= new File(path, "GarbleMe"); //A folder in the Android Music dir to put the wav files
-            Log.d(LOGTAG, "garbleMeDirectory: " + garbleMeDirectory.toString());
             if(!garbleMeDirectory.exists()){  //create Dir if it doesn't exist
                 overalSuccess = garbleMeDirectory.mkdirs(); //returns false if directory creation failed
-                Log.d(LOGTAG, "Attempt to create dir: " + Boolean.toString(overalSuccess));
+                //Log.d(LOGTAG, "Attempt to create dir: " + Boolean.toString(overalSuccess));
             }
 
             //path.mkdirs();
-            overalSuccess = garbleMeDirectory.exists();
+            //overalSuccess = garbleMeDirectory.exists();
             //overalSuccess= path.exists();
-            Log.d(LOGTAG, "Directory Created or Exists: "+ overalSuccess);
+            //Log.d(LOGTAG, "Directory Created or Exists: "+ overalSuccess);
 
             externalWavFile = new File(garbleMeDirectory, wavFile.getName());
-            Log.d(LOGTAG, "externalWavFile.toString: " + externalWavFile.toString() );
+            //Log.d(LOGTAG, "externalWavFile.toString: " + externalWavFile.toString() );
 
             byte data_buffer [] = new byte[WRITE_BUFF_SIZE];
             try{
@@ -84,7 +80,7 @@ public class FileManager {
                 fos.close();
                 fis.close();
 
-                Log.d(LOGTAG, "externalWavFile size: " + Long.toString(externalWavFile.length()));
+                //Log.d(LOGTAG, "externalWavFile size: " + Long.toString(externalWavFile.length()));
 
             }catch(IOException ioe){
                 overalSuccess= false;
