@@ -1,16 +1,17 @@
 package com.codepotato.FileHandling;
 
 import android.content.Context;
-import android.media.AudioFormat;
+
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import com.codepotato.AudioEffects.EchoEffect;
 import com.codepotato.audio_playback.SampleReader;
+import com.codepotato.audio_recording.Recorder;
 import com.codepotato.controller.EffectChain;
 import com.codepotato.controller.EffectChainFactory;
-import com.codepotato.controller.R;
+
 
 import java.io.*;
 import java.util.StringTokenizer;
@@ -30,6 +31,33 @@ public class FileManager {
     public FileManager() {
         effectChain= EffectChainFactory.initEffectChain();
         effectChain.addEffect(new EchoEffect());
+    }
+
+    /**
+     * Retrieves the list of recorded raw files
+     * @param appContext an instance of the Application context. Can be retrieved by Context.getApplicationContext in a
+     *                   GUI Activity Class via this.getApplicationContext.
+     * @return File[] an array of File objects
+     */
+    public File[] listRawFiles(Context appContext){
+       //Log.d(LOGTAG, "about to List files");
+       File searchDir = new File(appContext.getFilesDir(), Recorder.SAVED_RAW_FOLDER);
+       //Log.d(LOGTAG, "Search Dir: " + searchDir.toString());
+       File fileList[]= searchDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.endsWith(".raw");
+            }
+        });
+        //File fileList[] = searchDir.listFiles();
+
+        /*Log.d(LOGTAG, "fileList size: "+ Integer.toString(fileList.length)+ " STRING: " + fileList.toString());
+        for(File file_iterator: fileList){
+            Log.d(LOGTAG, file_iterator.getName());
+        }*/
+
+
+        return fileList;
     }
 
     /**

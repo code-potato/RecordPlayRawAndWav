@@ -110,9 +110,10 @@ public class PlaySound extends Activity {
         try {
             File waveFile= fileManager.convertToWavFile(audioFile);
             fileManager.exportToExternalMusicDir(waveFile, this.getApplicationContext());
+            File fileArray[] = fileManager.listRawFiles(this.getApplicationContext());
 
         } catch (IOException e) {
-
+            Log.d(LOG_TAG,"Some IO error occured in my exportWav funciton!", e);
         }
     }
 
