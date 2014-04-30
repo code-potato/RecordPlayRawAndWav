@@ -34,6 +34,25 @@ public class FileManager {
     }
 
     /**
+     * Deletes the raw audio file and its corresponding wav file (if it exists)
+     * @param audioFile File object
+     * @return boolean True if deletion was succesful
+     */
+    public boolean deleteFile(File audioFile){
+        boolean rsuccess;
+        //File parentDir= audioFile.getParentFile();
+        //String fileString= this.removeExtension(audioFile); //audio file without extension
+        rsuccess = audioFile.delete(); //delete raw file
+
+        /*fileString= fileString.concat(".wav");
+        File wavFile= new File(parentDir, fileString);
+        if (wavFile.exists())
+            wsuccess= wavFile.delete();*/
+
+
+        return rsuccess;
+    }
+    /**
      * Retrieves the list of recorded raw files
      * @param appContext an instance of the Application context. Can be retrieved by Context.getApplicationContext in a
      *                   GUI Activity Class via this.getApplicationContext.
@@ -42,6 +61,7 @@ public class FileManager {
     public File[] listRawFiles(Context appContext){
        //Log.d(LOGTAG, "about to List files");
        File searchDir = new File(appContext.getFilesDir(), Recorder.SAVED_RAW_FOLDER);
+       appContext= null;
        //Log.d(LOGTAG, "Search Dir: " + searchDir.toString());
        File fileList[]= searchDir.listFiles(new FilenameFilter() {
             @Override
@@ -85,11 +105,6 @@ public class FileManager {
                 //Log.d(LOGTAG, "Attempt to create dir: " + Boolean.toString(overalSuccess));
             }
 
-            //path.mkdirs();
-            //overalSuccess = garbleMeDirectory.exists();
-            //overalSuccess= path.exists();
-            //Log.d(LOGTAG, "Directory Created or Exists: "+ overalSuccess);
-
             externalWavFile = new File(garbleMeDirectory, wavFile.getName());
             //Log.d(LOGTAG, "externalWavFile.toString: " + externalWavFile.toString() );
 
@@ -107,6 +122,8 @@ public class FileManager {
 
                 fos.close();
                 fis.close();
+
+                wavFile.delete(); //deletes the local wav file
 
                 //Log.d(LOGTAG, "externalWavFile size: " + Long.toString(externalWavFile.length()));
 
@@ -159,10 +176,8 @@ public class FileManager {
         long sampleCounter=0; //FOR DEBUGING PURPOSES
         boolean comparison= false;
 
-        //remove the .raw extension**** should probably refactor?
-        String waveFileNameString= rawAudioFile.getName();
-        StringTokenizer stringTokenizer= new StringTokenizer(waveFileNameString, ".");
-        waveFileNameString = stringTokenizer.nextToken(); //now we have our audio file without .raw
+        //remove the .raw extension so we can add .wav
+        String waveFileNameString = removeExtension(rawAudioFile);
         waveFileNameString= waveFileNameString.concat(".wav");
         Log.d(LOGTAG, "convertToWavFile filename: " + waveFileNameString);
         Log.d(LOGTAG, "raw filesize: " + Long.toString(rawAudioFile.length()));
@@ -300,5 +315,16 @@ public class FileManager {
 
     }
 
+    /**
+     * Takes a file and removes any .raw, .wav extensions
+     * @param AudioFile
+     * @return a string of the file's name
+     */
+    private String removeExtension(File AudioFile) {
+        String FileNameString= AudioFile.getName();
+        StringTokenizer stringTokenizer= new StringTokenizer(FileNameString, ".");
+        FileNameString = stringTokenizer.nextToken(); //now we have our audio file without .raw
+        return FileNameString;
+    }
 }
 

@@ -98,7 +98,7 @@ public class Recorder implements Runnable{ //Runnable must be implemented for cr
                     bytes_read= recorder.read(audioBuffer, minBufferSizeInBytes);
 
                     if(bytes_read > 0){
-                        fileOutputStream.write(audioBuffer.array(), 0, bytes_read); //throws IOException TODO investigate using FileChannel to use ByteBuffer without array conversion
+                        fileOutputStream.write(audioBuffer.array(), 0, bytes_read); //throws IOException
                     }
                     else{
                         Log.d(LOGTAG, "bytes_read is less then or equal zero, end of recording or some kind of error" +
