@@ -6,6 +6,7 @@ import android.media.AudioTrack;
 import android.util.Log;
 import com.codepotato.AudioEffects.ChorusEffect;
 import com.codepotato.AudioEffects.EchoEffect;
+import com.codepotato.AudioEffects.FlangerEffect;
 import com.codepotato.controller.EffectChain;
 import com.codepotato.controller.EffectChainFactory;
 
@@ -42,6 +43,7 @@ public class Player implements Runnable{
                 32000, AudioTrack.MODE_STREAM);
 
         effectChain = EffectChainFactory.initEffectChain();
+        effectChain.addEffect(new FlangerEffect());
     }
 
     public boolean isPlaying(){
